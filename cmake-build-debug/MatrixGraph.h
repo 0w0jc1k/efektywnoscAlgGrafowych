@@ -1,0 +1,44 @@
+//
+// Created by Ola on 22.04.2026.
+//
+#ifndef MATRIXGRAPH_H
+#define MATRIXGRAPH_H
+#include <iostream>
+using namespace std;
+
+class MatrixGraph {
+public:
+    int** matrix; //wskaźnik do tablicy dwuwymiarowej
+    int vertices; //liczba wierzchołków
+    int edges; //liczba krawędzi
+
+    MatrixGraph(int V) { // Konstruktor
+        vertices = V;
+        edges = 0;
+        matrix = new int*[V]; //dynamiczna alokacja
+        for (int i = 0; i < V; i++) {
+            matrix[i] = new int[V];
+            for (int j = 0; j < V; j++) matrix[i][j] = 0;
+        }
+    }
+
+    ~MatrixGraph() { // Destruktor
+        for (int i = 0; i < vertices; i++) delete[] matrix[i];
+        delete[] matrix;
+    }
+
+    void addEdge(int u, int v, int weight) {
+        matrix[u][v] = weight; // Krawędź u -> v
+        matrix[v][u] = weight; // Krawędź v -> u (graf nieskierowany)
+        edges++;
+    }
+
+    void print() {
+        cout << "Macierz sasiedztwa:" << endl;
+        for (int i = 0; i < vertices; i++) {
+            for (int j = 0; j < vertices; j++) cout << matrix[i][j] << " ";
+            cout <<endl;
+        }
+    }
+};
+#endif

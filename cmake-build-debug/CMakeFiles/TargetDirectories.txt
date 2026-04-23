@@ -1,0 +1,3 @@
+C:/Users/Ola/CLionProjects/efektywnoscAlgGrafowych/cmake-build-debug/CMakeFiles/efektywnoscAlgGrafowych.dir
+C:/Users/Ola/CLionProjects/efektywnoscAlgGrafowych/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Ola/CLionProjects/efektywnoscAlgGrafowych/cmake-build-debug/CMakeFiles/rebuild_cache.dir
