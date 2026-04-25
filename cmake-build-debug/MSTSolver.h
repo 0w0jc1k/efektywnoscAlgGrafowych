@@ -1,47 +1,46 @@
 #ifndef MSTSOLVER_H
-#define MSTSOLVER_H
+#define MSTSOLVER_H //minimalne drzewo rozpinajace - podzbior krawedzi laczacych wszystkie wierzcholki przy uzyciu minimalnej mozliwej sumy wag krawedzi
+//nie tworzac przy tym zadnych cykli
 
-#include "MatrixGraph.h" // Dostep do macierzy
-#include "ListGraph.h"   // Dostep do listy
-#include <iostream>      // Wyjscie do konsoli
+#include "MatrixGraph.h"
+#include "ListGraph.h"
+#include <iostream>
 
-// --- STRUKTURY POMOCNICZE ---
-
-class MinHeap { // Wlasna implementacja kopca binarnego dla Prima
-    HeapNode* data; // Tablica danych
+class MinHeap { //implementacja kopca binarnego dla Prima
+    HeapNode* data;
     int capacity; // Maksymalny rozmiar
     int size; // Aktualny rozmiar
 public:
     MinHeap(int cap) { capacity = cap; size = 0; data = new HeapNode[cap]; } // Konstruktor
     ~MinHeap() { delete[] data; } // Destruktor
-    bool isEmpty() { return size == 0; } // Sprawdzenie czy pusty
+    bool isEmpty() { return size == 0; }
     void insert(HeapNode node) { // Wstawianie do kopca
-        int i = size++; // Miejsce na koncu
-        while (i > 0 && data[(i - 1) / 2].weight > node.weight) { // Idz w gore
-            data[i] = data[(i - 1) / 2]; // Przesun rodzica w dol
-            i = (i - 1) / 2; // Zmien indeks
+        int i = size++;
+        while (i > 0 && data[(i - 1) / 2].weight > node.weight) { //budowa kopca
+            data[i] = data[(i - 1) / 2]; //rodzic idzie na miejsce potomka
+            i = (i - 1) / 2; //potomek na miejsce rodzica
         }
-        data[i] = node; // Wstaw wezel
+        data[i] = node; //wstaw wierzcholek w miejsce
     }
     HeapNode extractMin() { // Wyciaganie minimum
-        HeapNode min = data[0]; // Zapamietaj korzen
-        data[0] = data[--size]; // Przenies ostatni na gore
+        HeapNode min = data[0]; //najpierw minimum to korzen
+        data[0] = data[--size]; //ostatni na miejsce korzenia
         int i = 0, j; // Indeksy do naprawy kopca w dol
         while ((j = 2 * i + 1) < size) { // Dopoki ma dzieci
             if (j + 1 < size && data[j + 1].weight < data[j].weight) j++; // Wybierz mniejsze dziecko
-            if (data[i].weight <= data[j].weight) break; // Jesli OK, koniec
-            HeapNode tmp = data[i]; data[i] = data[j]; data[j] = tmp; // Zamien
-            i = j; // Idz nizej
+            if (data[i].weight <= data[j].weight) break; //koniec jesli jest okej
+            HeapNode tmp = data[i]; data[i] = data[j]; data[j] = tmp; // Zamiana
+            i = j; //idziemy nizej
         }
         return min; // Zwroc najmniejszy
     }
 };
 
-class DSU { // Struktura zbiorow rozlacznych dla Kruskala
-    int* parent; // Tablica rodzicow
+class DSU {//zbiory rozlaczne dla kruskala
+    int* parent;
 public:
     DSU(int n) { parent = new int[n]; for (int i = 0; i < n; i++) parent[i] = i; } // Każdy jest swoim rodzicem
-    ~DSU() { delete[] parent; } // Usuwanie tablicy
+    ~DSU() { delete[] parent; }
     int find(int i) { // Znajdowanie reprezentanta z kompresja sciezki
         if (parent[i] == i) return i; // Korzen znaleziony
         return parent[i] = find(parent[i]); // Kompresja: przypisanie bezposrednio do korzenia
@@ -52,8 +51,6 @@ public:
         if (root_i != root_j) parent[root_i] = root_j; // Polacz pod jedno drzewo
     }
 };
-
-// --- FUNKCJE SORTOWANIA ---
 
 void sortEdges(Edge* edges, int count) { // Proste sortowanie przez wstawianie dla krawedzi (Kruskal)
     for (int i = 1; i < count; i++) { // Petla po krawedziach
@@ -67,33 +64,31 @@ void sortEdges(Edge* edges, int count) { // Proste sortowanie przez wstawianie d
     }
 }
 
-// --- ALGORYTMY MST ---
-
 class MSTSolver {
 public:
     // ALGORYTM PRIMA DLA MACIERZY
     static void primMatrix(MatrixGraph* g) {
-        if (!g) return; // Zabezpieczenie
+        if (!g) return;
         bool* visited = new bool[g->vertices]; // Tablica odwiedzin
         for (int i = 0; i < g->vertices; i++) visited[i] = false; // Zerowanie
         MinHeap heap(g->vertices * g->vertices); // Kopiec na krawedzie
         int totalWeight = 0; // Suma wag MST
 
-        std::cout << "\nKrawedzie MST (Prim - Macierz):" << std::endl;
+        cout << "\nKrawedzie MST (Prim - Macierz):" << endl;
         heap.insert({0, 0, -1}); // Zacznij od wierzcholka 0
 
         while (!heap.isEmpty()) { // Dopoki sa krawedzie w kopcu
             HeapNode current = heap.extractMin(); // Wybierz najtansza
-            if (visited[current.vertex]) continue; // Jesli juz w drzewie, pomin
+            if (visited[current.v]) continue; // Jesli juz w drzewie, pomin
             
-            visited[current.vertex] = true; // Dodaj do drzewa
+            visited[current.v] = true; // Dodaj do drzewa
             totalWeight += current.weight; // Zwieksz wage
             if (current.parent != -1) // Jesli to nie pierwszy wezel
-                std::cout << current.parent << " - " << current.vertex << " w: " << current.weight << std::endl;
+                std::cout << current.parent << " - " << current.v << " w: " << current.weight << std::endl;
 
             for (int v = 0; v < g->vertices; v++) { // Sprawdz sasiadow w macierzy
-                if (g->matrix[current.vertex][v] > 0 && !visited[v]) { // Jesli krawedz istnieje i sasiad wolny
-                    heap.insert({v, g->matrix[current.vertex][v], current.vertex}); // Dodaj do kopca
+                if (g->matrix[current.v][v] > 0 && !visited[v]) { // Jesli krawedz istnieje i sasiad wolny
+                    heap.insert({v, g->matrix[current.v][v], current.v}); // Dodaj do kopca
                 }
             }
         }
@@ -114,17 +109,17 @@ public:
 
         while (!heap.isEmpty()) {
             HeapNode current = heap.extractMin();
-            if (visited[current.vertex]) continue;
+            if (visited[current.v]) continue;
 
-            visited[current.vertex] = true;
+            visited[current.v] = true;
             totalWeight += current.weight;
             if (current.parent != -1)
-                std::cout << current.parent << " - " << current.vertex << " w: " << current.weight << std::endl;
+                std::cout << current.parent << " - " << current.v << " w: " << current.weight << std::endl;
 
-            ListNode* temp = g->adjList[current.vertex]; // Przeszukaj liste sasiadow
+            ListNode* temp = g->adjList[current.v]; // Przeszukaj liste sasiadow
             while (temp) { // Przechodz po liscie
                 if (!visited[temp->target]) { // Jesli sasiad nieodwiedzony
-                    heap.insert({temp->target, temp->weight, current.vertex}); // Dodaj do kopca
+                    heap.insert({temp->target, temp->weight, current.v}); // Dodaj do kopca
                 }
                 temp = temp->next; // Nastepny sasiad
             }
