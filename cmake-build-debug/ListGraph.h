@@ -34,16 +34,16 @@ public:
 
     void addEdge(int u, int v, int weight) {
         ListNode* newNode = new ListNode;
-        newNode->target = v;
-        newNode->weight = weight;
+        newNode->target = v; //u-v
+        newNode->weight = weight; //koszt drogi
         newNode->next = adjList[u]; // Wskaż na dotychczasowy początek
         adjList[u] = newNode; // Stań się nowym początkiem
 
-        ListNode* newNode2 = new ListNode; // Powrotny dla nieskierowanego
-        newNode2->target = u; // Cel: u
+        ListNode* newNode2 = new ListNode; //To samo w druga strone dla nieskierowanego
+        newNode2->target = u; //v-u
         newNode2->weight = weight;
-        newNode2->next = adjList[v]; // Wskazanie
-        adjList[v] = newNode2; // Przypisanie
+        newNode2->next = adjList[v];
+        adjList[v] = newNode2;
         edges++;
     }
 

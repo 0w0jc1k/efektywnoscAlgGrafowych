@@ -29,7 +29,7 @@ public:
 
     void addEdge(int u, int v, int weight) {
         matrix[u][v] = weight; // Krawędź u -> v
-        matrix[v][u] = weight; // Krawędź v -> u (graf nieskierowany)
+        matrix[v][u] = weight; // Krawędź v -> u wpisanie wartosci w obu przypadkach takiej samej poniewaz graf jest nieskierowany 3-4 = 4-3
         edges++;
     }
 

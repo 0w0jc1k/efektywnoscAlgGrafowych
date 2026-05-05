@@ -5,6 +5,7 @@
 #include "MatrixGraph.h"
 #include "ListGraph.h"
 #include <iostream>
+using namespace std;
 
 class MinHeap { //implementacja kopca binarnego dla Prima
     HeapNode* data;
@@ -17,7 +18,7 @@ public:
     void insert(HeapNode node) { // Wstawianie do kopca
         int i = size++;
         while (i > 0 && data[(i - 1) / 2].weight > node.weight) { //budowa kopca
-            data[i] = data[(i - 1) / 2]; //rodzic idzie na miejsce potomka
+            data[i] = data[(i - 1) / 2]; //rodzic idzie na miejsce potomka, rodzic mniejszy od dziecka
             i = (i - 1) / 2; //potomek na miejsce rodzica
         }
         data[i] = node; //wstaw wierzcholek w miejsce
@@ -41,26 +42,26 @@ class DSU {//zbiory rozlaczne dla kruskala
 public:
     DSU(int n) { parent = new int[n]; for (int i = 0; i < n; i++) parent[i] = i; } // Każdy jest swoim rodzicem
     ~DSU() { delete[] parent; }
-    int find(int i) { // Znajdowanie reprezentanta z kompresja sciezki
+    int find(int i) { // Znajdowanie reprezentanta zbioru z kompresja sciezki - wszystkkie wierzcholki wskazuja na korzen co jest szybsze
         if (parent[i] == i) return i; // Korzen znaleziony
         return parent[i] = find(parent[i]); // Kompresja: przypisanie bezposrednio do korzenia
     }
-    void unite(int i, int j) { // Laczenie zbiorow
-        int root_i = find(i); // Znajdz korzen i
-        int root_j = find(j); // Znajdz korzen j
+    void unite(int i, int j) { // Laczenie zbiorow w jeden
+        int root_i =find(i); // Znajdz korzen i
+        int root_j =find(j); // Znajdz korzen j
         if (root_i != root_j) parent[root_i] = root_j; // Polacz pod jedno drzewo
     }
 };
 
-void sortEdges(Edge* edges, int count) { // Proste sortowanie przez wstawianie dla krawedzi (Kruskal)
-    for (int i = 1; i < count; i++) { // Petla po krawedziach
-        Edge key = edges[i]; // Zapamietaj krawedz
-        int j = i - 1; // Indeks poprzednika
-        while (j >= 0 && edges[j].weight > key.weight) { // Przesuwaj wieksze wagi
-            edges[j + 1] = edges[j]; // Przesuniecie
-            j--; // Dalej w lewo
+void sortEdges(Edge* edges, int count) { //Lista krawedzi posortowana sortowaniem przez wstawianie (Kruskal)
+    for (int i = 1; i < count; i++) {
+        Edge key = edges[i];
+        int j = i - 1;
+        while (j >= 0 && edges[j].weight > key.weight) {
+            edges[j + 1] = edges[j];
+            j--;
         }
-        edges[j + 1] = key; // Wstaw w odpowiednie miejsce
+        edges[j + 1] = key;
     }
 }
 
@@ -70,21 +71,21 @@ public:
     static void primMatrix(MatrixGraph* g) {
         if (!g) return;
         bool* visited = new bool[g->vertices]; // Tablica odwiedzin
-        for (int i = 0; i < g->vertices; i++) visited[i] = false; // Zerowanie
-        MinHeap heap(g->vertices * g->vertices); // Kopiec na krawedzie
+        for (int i = 0; i < g->vertices; i++) visited[i] = false; // Zerowanie na poczatek nic nie zostalo odwiedzone
+        MinHeap heap(g->vertices * g->vertices); // Kopiec na krawedzie rozmiarow V * V
         int totalWeight = 0; // Suma wag MST
 
         cout << "\nKrawedzie MST (Prim - Macierz):" << endl;
         heap.insert({0, 0, -1}); // Zacznij od wierzcholka 0
 
         while (!heap.isEmpty()) { // Dopoki sa krawedzie w kopcu
-            HeapNode current = heap.extractMin(); // Wybierz najtansza
+            HeapNode current = heap.extractMin(); // Wybierz najmniejsza wage
             if (visited[current.v]) continue; // Jesli juz w drzewie, pomin
             
             visited[current.v] = true; // Dodaj do drzewa
             totalWeight += current.weight; // Zwieksz wage
             if (current.parent != -1) // Jesli to nie pierwszy wezel
-                std::cout << current.parent << " - " << current.v << " w: " << current.weight << std::endl;
+                cout << current.parent << " - " << current.v << " waga: " << current.weight << endl;
 
             for (int v = 0; v < g->vertices; v++) { // Sprawdz sasiadow w macierzy
                 if (g->matrix[current.v][v] > 0 && !visited[v]) { // Jesli krawedz istnieje i sasiad wolny
@@ -92,8 +93,8 @@ public:
                 }
             }
         }
-        std::cout << "Suma MST: " << totalWeight << std::endl;
-        delete[] visited; // Sprzatanie
+        cout << "Suma MST: " << totalWeight << endl;
+        delete[] visited;
     }
 
     // ALGORYTM PRIMA DLA LISTY
@@ -104,7 +105,7 @@ public:
         MinHeap heap(g->edges * 2 + 1); // Kopiec rozmiaru liczby krawedzi
         int totalWeight = 0;
 
-        std::cout << "\nKrawedzie MST (Prim - Lista):" << std::endl;
+        cout << "\nKrawedzie MST (Prim - Lista):" << endl;
         heap.insert({0, 0, -1});
 
         while (!heap.isEmpty()) {
@@ -114,7 +115,7 @@ public:
             visited[current.v] = true;
             totalWeight += current.weight;
             if (current.parent != -1)
-                std::cout << current.parent << " - " << current.v << " w: " << current.weight << std::endl;
+                cout << current.parent<< " - " << current.v << " w: " << current.weight<<endl;
 
             ListNode* temp = g->adjList[current.v]; // Przeszukaj liste sasiadow
             while (temp) { // Przechodz po liscie
@@ -124,7 +125,7 @@ public:
                 temp = temp->next; // Nastepny sasiad
             }
         }
-        std::cout << "Suma MST: " << totalWeight << std::endl;
+        cout << "Suma MST: " << totalWeight << endl;
         delete[] visited;
     }
 
@@ -135,17 +136,17 @@ public:
         int totalWeight = 0; // Suma wag
         int edgesCount = 0; // Licznik krawedzi w MST
 
-        std::cout << "\nKrawedzie MST (Kruskal - " << label << "):" << std::endl;
+        cout<<"\nKrawedzie MST (Kruskal - " << label << "):" << endl;
         for (int i = 0; i < E; i++) { // Przegladaj posortowane krawedzie
-            if (dsu.find(allEdges[i].u) != dsu.find(allEdges[i].v)) { // Jesli nie tworza cyklu
+            if (dsu.find(allEdges[i].u) != dsu.find(allEdges[i].v)) { // Jesli nie tworza cyklu tj. maja innych reprezentantow zbioru
                 dsu.unite(allEdges[i].u, allEdges[i].v); // Polacz zbiory
-                std::cout << allEdges[i].u << " - " << allEdges[i].v << " w: " << allEdges[i].weight << std::endl;
+                cout << allEdges[i].u << " - " << allEdges[i].v << " waga: " << allEdges[i].weight << endl;
                 totalWeight += allEdges[i].weight; // Dodaj wage
                 edgesCount++; // Kolejna krawedz
             }
-            if (edgesCount == V - 1) break; // Drzewo gotowe
+            if (edgesCount == V - 1) break; //drzewo kompletne gdy jest jedna krawedz mniej niz jest wierzcholkow
         }
-        std::cout << "Suma MST: " << totalWeight << std::endl;
+        cout << "Suma MST: "<< totalWeight << endl;
     }
 
     // Pomocnik zbierajacy krawedzie z macierzy

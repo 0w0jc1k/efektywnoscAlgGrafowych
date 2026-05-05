@@ -18,4 +18,4 @@ struct HeapNode { //element kopca dla prima
     int v,weight, parent; //wierzcholek, aktualna najkrotsza droga dojscia do drzewa, rodzic z ktorego przyszlismy
 };
 
-#endif //STRUCTURES_H
+#endif

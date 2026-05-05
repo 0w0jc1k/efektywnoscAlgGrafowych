@@ -12,6 +12,17 @@ using namespace std;
 MatrixGraph* mGraph = nullptr; //wskaznik na macierzowy graf
 ListGraph* lGraph = nullptr; //wskaznik na listowy graf
 
+void czyPowrot(int &subChoice, int &problemChoice){
+    if (subChoice == 0) return;
+    char backToMenu;
+        cout<<"Powrot do MENU? (t/n): ";
+        cin >>backToMenu;
+        if (backToMenu == 'n' || backToMenu == 'N') {
+            subChoice = 0;
+            problemChoice = 0;
+        }
+    }
+
 void clearGraphs() { //czysci stare grafy
     if (mGraph) { delete mGraph; mGraph = nullptr; }
     if (lGraph) { delete lGraph; lGraph = nullptr; }
@@ -116,16 +127,17 @@ void displayMenu() {
 
 int main() {
     int problemChoice = -1;
-    char backToMenu;
     while (problemChoice != 0) {
+        int subChoice = -1;
         cout << "\n=== WYBIERZ PROBLEM ===" << endl;
         cout << "1. MST (Prim, Kruskal)" << endl;
+        cout << "2. Najkrotsza sciezka w grafie (Dijkstry, Ford-Bellman)" << endl;
+        cout << "3. Wyznaczenie maksymalnego przeplywu (Ford Fulkerson)" << endl;
         cout << "0. Wyjscie" << endl;
         cout<<"Wybor: ";
         cin >> problemChoice;
 
         if (problemChoice == 1){
-            int subChoice = -1;
             while (subChoice != 0){
                 displayMenu();
                 cin >> subChoice;
@@ -153,18 +165,71 @@ int main() {
                         break;
                     }
                 }
-                if (subChoice != 0) {
-                    cout<<"Powrot do MENU? (t/n): ";
-                    cin >>backToMenu;
-                    if (backToMenu == 'n' || backToMenu == 'N') {
-                        subChoice = 0;
-                        problemChoice = 0;
+                czyPowrot(subChoice, problemChoice);
+            }
+        }else if(problemChoice == 2){
+            while (subChoice != 0){
+                displayMenu();
+                cin >> subChoice;
+                if (subChoice == 1) {
+                    loadFromFile();
+                }else if (subChoice == 2) {
+                    generateRandomGraph();
+                }else if (subChoice == 3){
+                    if (mGraph && lGraph) { mGraph->print(); lGraph->print(); }
+                    else cout << "Najpierw wczytaj graf!" << endl;
+                }else if (subChoice == 4) {
+                    if (mGraph && lGraph) {
+                        MSTSolver::primMatrix(mGraph);
+                        MSTSolver::primList(lGraph);
+                    }else {
+                        cout << "Najpierw wczytaj graf!" << endl;
+                        break;
+                    }
+                }else if (subChoice == 5) {
+                    if (mGraph && lGraph) {
+                        MSTSolver::solveKruskalMatrix(mGraph);
+                        MSTSolver::solveKruskalList(lGraph);
+                    }else {
+                        cout << "Najpierw wczytaj graf!" << endl;
+                        break;
                     }
                 }
+                czyPowrot(subChoice, problemChoice);
+            }
+}else if(problemChoice == 3){
+    while (subChoice != 0){
+        displayMenu();
+        cin >> subChoice;
+        if (subChoice == 1) {
+            loadFromFile();
+        }else if (subChoice == 2) {
+            generateRandomGraph();
+        }else if (subChoice == 3){
+            if (mGraph && lGraph) { mGraph->print(); lGraph->print(); }
+            else cout << "Najpierw wczytaj graf!" << endl;
+        }else if (subChoice == 4) {
+            if (mGraph && lGraph) {
+                MSTSolver::primMatrix(mGraph);
+                MSTSolver::primList(lGraph);
+            }else {
+                cout << "Najpierw wczytaj graf!" << endl;
+                break;
+            }
+        }else if (subChoice == 5) {
+            if (mGraph && lGraph) {
+                MSTSolver::solveKruskalMatrix(mGraph);
+                MSTSolver::solveKruskalList(lGraph);
+            }else {
+                cout << "Najpierw wczytaj graf!" << endl;
+                break;
             }
         }
-
+    czyPowrot(subChoice, problemChoice);
     }
+}
+}
+
     clearGraphs();
     return 0;
 }
