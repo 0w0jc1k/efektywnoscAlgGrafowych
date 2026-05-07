@@ -40,7 +40,7 @@ void loadFromFile() {
     }
 
     int E, V; //liczba krawedzi i wierzcholkow
-    file >> E >> V; //wczytanie liczby krawędzi i wierzchołków z pliku
+    file >> E >> V; //wczytanie liczby krawędzi i wierzchołków z pliku z pierwszego wiersza
 
     clearGraphs(); // Usunięcie starego grafu przed stworzeniem nowego
     mGraph = new MatrixGraph(V);
@@ -48,7 +48,7 @@ void loadFromFile() {
 
     int u, v, w; //wierzcholek startowy, koncowy, dlugosc sciezki
     for (int i = 0; i < E; i++) {
-        if (!(file >> u >> v >> w)) break; //zabezpieczenie przed koncem pliku
+        if (!(file >> u >> v >> w)) break; //zabezpieczenie przed koncem pliku wczytywanie odpowiednich wartosci w ich miejsca
         mGraph->addEdge(u, v, w); // Dodanie do struktury macierzowej
         lGraph->addEdge(u, v, w); // Dodanie do struktury listowej
     }
@@ -72,11 +72,11 @@ void generateRandomGraph() {
         return;
     }
 
-    // Max krawędzi w grafie nieskierowanym to V*(V-1)/2
+    // Max krawędzi w grafie nieskierowanym to V*(V-1)/2 -- np. dla 3 wierzcholkow 3 krawedzie
     long long maxEdges = (long long)V * (V - 1) / 2;
-    int targetEdges = (int)(maxEdges * density / 100);
+    int targetEdges = (int)(maxEdges * density / 100); //gestosc krawedzi
 
-    // Minimalna liczba krawędzi by graf był spójny to V-1
+    // Minimalna liczba krawędzi by graf był spójny to V-1 -- sppojny czyli kazda para wierzcholkow jest polaczona jakas droga
     if (targetEdges < V - 1) targetEdges = V - 1;
 
     clearGraphs(); // Sprzątamy starą pamięć
@@ -85,21 +85,21 @@ void generateRandomGraph() {
 
     srand(time(NULL)); // Inicjalizacja ziarna losowania
 
-    // KROK 1: Gwarantujemy spójność (drzewo rozpinające w formie ścieżki)
-    for (int i = 0; i < V - 1; i++) {
-        int weight = rand() % 100 + 1; // Wagi od 1 do 100
+    //Gwarancja spójności (drzewo rozpinające w formie ścieżki (min krawedzi bez cykli))
+    for (int i = 0; i < V - 1; i++) { //przejscie przez wszystkie krawedzie do ich minimalnej ilosci
+        int weight = rand() % 100 + 1; // Wagi od 1 do 100 random
         mGraph->addEdge(i, i + 1, weight);
         lGraph->addEdge(i, i + 1, weight);
     }
 
-    // KROK 2: Dolosowujemy resztę krawędzi
+    //Dolosowujemy resztę krawędzi
     int currentEdges = V - 1;
-    while (currentEdges < targetEdges) {
-        int u = rand() % V;
-        int v = rand() % V;
+    while (currentEdges < targetEdges) { //obecna liczba krawedzi(zaczynamy od minimalnej) < ostateczna liczba krawedzi z gestosci
+        int u = rand() % V; //randomowy z podanej ilosci
+        int v = rand() % V; //random z podanej ilosci
 
         // Nie chcemy pętli własnych (u==v) ani powtórzonych krawędzi (matrix[u][v] > 0)
-        if (u != v && mGraph->matrix[u][v] == 0) {
+        if (u != v && mGraph->matrix[u][v] == 0) { //wierzcholki sie nie lacza i sa rozne to je laczymy
             int weight = rand() % 100 + 1;
             mGraph->addEdge(u, v, weight);
             lGraph->addEdge(u, v, weight);

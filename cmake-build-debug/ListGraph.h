@@ -34,13 +34,13 @@ public:
 
     void addEdge(int u, int v, int weight) {
         ListNode* newNode = new ListNode;
-        newNode->target = v; //u-v
-        newNode->weight = weight; //koszt drogi
-        newNode->next = adjList[u]; // Wskaż na dotychczasowy początek
-        adjList[u] = newNode; // Stań się nowym początkiem
+        newNode->target = v; //v-u
+        newNode->weight = weight; //koszt drogi do u
+        newNode->next = adjList[u]; //u jest kolejnym wierzcholkiem z ktorego mozna laczyc
+        adjList[u] = newNode; // tworzymy wierzcholek u
 
         ListNode* newNode2 = new ListNode; //To samo w druga strone dla nieskierowanego
-        newNode2->target = u; //v-u
+        newNode2->target = u; //u-v
         newNode2->weight = weight;
         newNode2->next = adjList[v];
         adjList[v] = newNode2;

@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-class MinHeap { //implementacja kopca binarnego dla Prima
+class MinHeap { //implementacja kopca binarnego dla Prima (wybiera najkrotsza mozliwa i dodaje go do MST i bada reszte sasiadow)
     HeapNode* data;
     int capacity; // Maksymalny rozmiar
     int size; // Aktualny rozmiar
@@ -17,13 +17,13 @@ public:
     bool isEmpty() { return size == 0; }
     void insert(HeapNode node) { // Wstawianie do kopca
         int i = size++;
-        while (i > 0 && data[(i - 1) / 2].weight > node.weight) { //budowa kopca
-            data[i] = data[(i - 1) / 2]; //rodzic idzie na miejsce potomka, rodzic mniejszy od dziecka
+        while (i > 0 && data[(i - 1) / 2].weight > node.weight) { //budowa kopca minimalnego (jesli rodzic wiekszy od obecnego to...)
+            data[i] = data[(i - 1) / 2]; //rodzic idzie na miejsce potomka, rodzic mniejszy od dziecka ma byc
             i = (i - 1) / 2; //potomek na miejsce rodzica
         }
         data[i] = node; //wstaw wierzcholek w miejsce
     }
-    HeapNode extractMin() { // Wyciaganie minimum
+    HeapNode extractMin() { // Wyciaganie minimum z kopca minimalnego czyli korzeniem i usuwanie ostatniego
         HeapNode min = data[0]; //najpierw minimum to korzen
         data[0] = data[--size]; //ostatni na miejsce korzenia
         int i = 0, j; // Indeksy do naprawy kopca w dol
@@ -40,10 +40,10 @@ public:
 class DSU {//zbiory rozlaczne dla kruskala
     int* parent;
 public:
-    DSU(int n) { parent = new int[n]; for (int i = 0; i < n; i++) parent[i] = i; } // Każdy jest swoim rodzicem
+    DSU(int n) { parent = new int[n]; for (int i = 0; i < n; i++) parent[i] = i; } // Każdy jest swoim rodzicem (reprezentant zbioru)
     ~DSU() { delete[] parent; }
     int find(int i) { // Znajdowanie reprezentanta zbioru z kompresja sciezki - wszystkkie wierzcholki wskazuja na korzen co jest szybsze
-        if (parent[i] == i) return i; // Korzen znaleziony
+        if (parent[i] == i) return i; // Korzen znaleziony jesli jestesmy sobie sami rodzicem
         return parent[i] = find(parent[i]); // Kompresja: przypisanie bezposrednio do korzenia
     }
     void unite(int i, int j) { // Laczenie zbiorow w jeden
@@ -71,8 +71,8 @@ public:
     static void primMatrix(MatrixGraph* g) {
         if (!g) return;
         bool* visited = new bool[g->vertices]; // Tablica odwiedzin
-        for (int i = 0; i < g->vertices; i++) visited[i] = false; // Zerowanie na poczatek nic nie zostalo odwiedzone
-        MinHeap heap(g->vertices * g->vertices); // Kopiec na krawedzie rozmiarow V * V
+        for (int i = 0; i < g->vertices; i++) visited[i] = false; // Zerowanie, na poczatek nic nie zostalo odwiedzone
+        MinHeap heap(g->vertices * g->vertices); // Kopiec minimalny na krawedzie rozmiarow V * V czyli caly graf
         int totalWeight = 0; // Suma wag MST
 
         cout << "\nKrawedzie MST (Prim - Macierz):" << endl;
@@ -88,8 +88,8 @@ public:
                 cout << current.parent << " - " << current.v << " waga: " << current.weight << endl;
 
             for (int v = 0; v < g->vertices; v++) { // Sprawdz sasiadow w macierzy
-                if (g->matrix[current.v][v] > 0 && !visited[v]) { // Jesli krawedz istnieje i sasiad wolny
-                    heap.insert({v, g->matrix[current.v][v], current.v}); // Dodaj do kopca
+                if (g->matrix[current.v][v] > 0 && !visited[v]) { // Jesli krawedz istnieje i sasiad nieodwiedzony
+                    heap.insert({v, g->matrix[current.v][v], current.v}); // Dodaj do kopca teraz to samo ale dla kolejnego wierzcholka
                 }
             }
         }
@@ -120,7 +120,7 @@ public:
             ListNode* temp = g->adjList[current.v]; // Przeszukaj liste sasiadow
             while (temp) { // Przechodz po liscie
                 if (!visited[temp->target]) { // Jesli sasiad nieodwiedzony
-                    heap.insert({temp->target, temp->weight, current.v}); // Dodaj do kopca
+                    heap.insert({temp->target, temp->weight, current.v}); // Dodaj do kopca i powtarzamy operacje dla niego
                 }
                 temp = temp->next; // Nastepny sasiad
             }

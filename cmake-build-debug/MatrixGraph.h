@@ -15,7 +15,7 @@ public:
     MatrixGraph(int V) { // Konstruktor
         vertices = V;
         edges = 0;
-        matrix = new int*[V]; //dynamiczna alokacja
+        matrix = new int*[V]; //dynamiczna alokacja bo macierz V x V
         for (int i = 0; i < V; i++) {
             matrix[i] = new int[V];
             for (int j = 0; j < V; j++) matrix[i][j] = 0;
