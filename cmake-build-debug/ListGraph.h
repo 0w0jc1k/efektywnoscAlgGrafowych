@@ -32,18 +32,20 @@ public:
         delete[] adjList;
     }
 
-    void addEdge(int u, int v, int weight) {
+    void addEdge(int u, int v, int weight, bool isDirected = false) { //funkcja dodajaca krawedzie pomiedzy wierzcholkami o danej wadze
         ListNode* newNode = new ListNode;
-        newNode->target = v; //v-u
-        newNode->weight = weight; //koszt drogi do u
-        newNode->next = adjList[u]; //u jest kolejnym wierzcholkiem z ktorego mozna laczyc
-        adjList[u] = newNode; // tworzymy wierzcholek u
+        newNode->target = v;
+        newNode->weight = weight;
+        newNode->next = adjList[u];
+        adjList[u] = newNode;
 
-        ListNode* newNode2 = new ListNode; //To samo w druga strone dla nieskierowanego
-        newNode2->target = u; //u-v
-        newNode2->weight = weight;
-        newNode2->next = adjList[v];
-        adjList[v] = newNode2;
+        if (!isDirected) { //jesli nieskierowana to dodajemy jeszcze jedna w druga strone
+            ListNode* newNode2 = new ListNode;
+            newNode2->target = u;
+            newNode2->weight = weight;
+            newNode2->next = adjList[v];
+            adjList[v] = newNode2;
+        }
         edges++;
     }
 
@@ -51,9 +53,9 @@ public:
         cout << "Lista sasiadow:" << endl;
         for (int i = 0; i < vertices; i++) {
             cout << "[" << i <<"]: "; //
-            ListNode* curr = adjList[i];
-            while (curr) {
-                cout << "-> " << curr->target << "(" << curr->weight << ") ";
+            ListNode* curr = adjList[i]; //obecny wierzcholek
+            while (curr) { //jesli istnieje wierzcholek
+                cout << "-> " << curr->target << "(" << curr->weight << ") "; //zrodlo, cel, waga
                 curr = curr->next;
             }
             cout<<endl;
