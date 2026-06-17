@@ -8,4 +8,6 @@ add_executable(efektywnoscAlgGrafowych cmake-build-debug/main.cpp
         cmake-build-debug/MSTSolver.h
         cmake-build-debug/Structures.h
         cmake-build-debug/MatrixGraph.h
+        cmake-build-debug/ShortestPathSolver.h
+        cmake-build-debug/MaxFlowSolver.h
 )
