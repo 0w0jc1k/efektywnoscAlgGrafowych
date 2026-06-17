@@ -27,9 +27,12 @@ public:
         delete[] matrix;
     }
 
-    void addEdge(int u, int v, int weight) {
-        matrix[u][v] = weight; // Krawędź u -> v
-        matrix[v][u] = weight; // Krawędź v -> u wpisanie wartosci w obu przypadkach takiej samej poniewaz graf jest nieskierowany 3-4 = 4-3
+    void addEdge(int u, int v, int weight, bool isDirected = false) {//dodanie odpowiedniej ilosci krawedzi w zaleznosci od tego czy
+        //skierowane czy nie
+        matrix[u][v] = weight; // Krawedz u -> v
+        if (!isDirected) {
+            matrix[v][u] = weight; // Krawedz v -> u tylko dla grafu nieskierowanego (w obie strony)
+        }
         edges++;
     }
 
